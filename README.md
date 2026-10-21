@@ -108,7 +108,23 @@ with only a primary key, adds `(status, created_at DESC)`, and measures again.
 Both phases print `EXPLAIN (ANALYZE, BUFFERS)` so the plan change is visible,
 not just the timing.
 
-<!-- BENCHMARK_RESULTS -->
+Measured on 200,000 orders (30 MB table), 30 executions per phase after 3 warm-up
+runs — Windows 11, Intel i7-12650H, PostgreSQL 17.11:
+
+| Phase | p50, ms | p95, ms | Plan |
+|---|---|---|---|
+| Primary key only | 52.20 | 57.62 | Parallel Seq Scan + top-N heapsort |
+| `(status, created_at DESC)` | 0.44 | 0.55 | Index Scan, stops after 50 rows |
+| Speed-up | ×119 | ×104 | |
+
+What actually changed is the amount of work: the planner used to read every row,
+filter, sort and keep the top 50 — 1,907 shared buffers touched. With the index
+it walks backwards from `now()` and stops as soon as 50 rows are collected:
+53 buffers. Same query, same data, two orders of magnitude.
+
+The benchmark is deliberately unglamorous — it drops the index, measures, creates
+it, measures again in the same process, so the numbers can be reproduced rather
+than trusted.
 
 ## Tests
 
