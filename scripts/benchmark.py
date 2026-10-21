@@ -36,9 +36,7 @@ ORDER BY created_at DESC
 LIMIT 50
 """
 
-INDEX_DDL = (
-    "CREATE INDEX ix_orders_status_created_at ON orders (status, created_at DESC)"
-)
+INDEX_DDL = "CREATE INDEX ix_orders_status_created_at ON orders (status, created_at DESC)"
 STATUSES = ["paid", "paid", "created", "shipped", "cancelled"]
 
 
@@ -61,7 +59,7 @@ async def seed(conn: asyncpg.Connection, rows: int) -> None:
     print(f"seeding {rows:,} orders (this takes a minute)…")
     now = datetime.now(UTC)
     batch: list[tuple] = []
-    for i in range(rows):
+    for _ in range(rows):
         batch.append(
             (
                 uuid.uuid4(),
@@ -105,9 +103,7 @@ async def measure(conn: asyncpg.Connection, runs: int) -> tuple[float, float]:
 
 
 async def explain(conn: asyncpg.Connection) -> str:
-    plan = await conn.fetch(
-        "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) " + QUERY
-    )
+    plan = await conn.fetch("EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) " + QUERY)
     return "\n".join(row[0] for row in plan)
 
 
@@ -141,7 +137,7 @@ async def main() -> None:
         print("|---|---|---|")
         print(f"| No index | {slow_p50:.2f} | {slow_p95:.2f} |")
         print(f"| Composite index | {fast_p50:.2f} | {fast_p95:.2f} |")
-        print(f"| Speed-up | ×{slow_p50 / fast_p50:.1f} | ×{slow_p95 / fast_p95:.1f} |")
+        print(f"| Speed-up | x{slow_p50 / fast_p50:.1f} | x{slow_p95 / fast_p95:.1f} |")
     finally:
         await conn.close()
 
