@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -46,8 +47,6 @@ class StockOut(BaseModel):
     reserved: int
     available: int
 
-
-from typing import Generic, TypeVar
 
 T = TypeVar("T")
 

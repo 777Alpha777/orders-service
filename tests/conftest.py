@@ -41,9 +41,7 @@ async def session_factory(engine):
     factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with engine.begin() as conn:
-        await conn.execute(
-            Base.metadata.tables["order_items"].delete()
-        )
+        await conn.execute(Base.metadata.tables["order_items"].delete())
         await conn.execute(Base.metadata.tables["orders"].delete())
         await conn.execute(Base.metadata.tables["stock"].delete())
         await conn.execute(Base.metadata.tables["products"].delete())

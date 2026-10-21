@@ -123,9 +123,7 @@ async def list_orders(
         .limit(limit)
         .offset(offset)
     )
-    total = await session.scalar(
-        select(func.count()).select_from(Order).where(*conditions)
-    )
+    total = await session.scalar(select(func.count()).select_from(Order).where(*conditions))
 
     rows = (await session.scalars(stmt)).all()
     return rows, int(total or 0)
@@ -133,7 +131,5 @@ async def list_orders(
 
 async def _find_by_idempotency_key(session: AsyncSession, key: str) -> Order | None:
     return await session.scalar(
-        select(Order)
-        .where(Order.idempotency_key == key)
-        .options(selectinload(Order.items))
+        select(Order).where(Order.idempotency_key == key).options(selectinload(Order.items))
     )

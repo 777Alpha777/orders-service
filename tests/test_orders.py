@@ -39,9 +39,7 @@ async def test_insufficient_stock_returns_409(client: AsyncClient, seeded: dict)
     assert stock[0]["reserved"] == 0
 
 
-async def test_idempotency_key_returns_the_same_order(
-    client: AsyncClient, seeded: dict
-) -> None:
+async def test_idempotency_key_returns_the_same_order(client: AsyncClient, seeded: dict) -> None:
     headers = {"Idempotency-Key": "checkout-7f3a"}
 
     first = await client.post("/api/v1/orders", json=_payload(seeded, 2), headers=headers)
